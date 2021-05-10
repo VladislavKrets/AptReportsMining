@@ -4,8 +4,7 @@ import nltk
 from nltk import pos_tag, ne_chunk
 from nltk.tokenize import SpaceTokenizer
 import re
-import io
-import cv2
+import wikipedia
 import pytesseract
 from guesslang import Guess
 from PIL import Image, ImageOps
@@ -80,19 +79,22 @@ def extract_hashes(source_file_contents):
     return result
 
 
-pdf_file = open('APT27+turns+to+ransomware.pdf', 'rb')
+pdf_file_name = 'APT27+turns+to+ransomware.pdf' #change to input
+pdf_file = open(pdf_file_name, 'rb')
 read_pdf = PyPDF4.PdfFileReader(pdf_file)
 number_of_pages = read_pdf.getNumPages()
 raw = ''
-if not os.path.exists('APT27+turns+to+ransomware'):
-    os.mkdir('APT27+turns+to+ransomware')
+
+temp_directory_name = '.'.join(pdf_file_name.split('.')[:-1])
+if not os.path.exists(temp_directory_name):
+    os.mkdir(temp_directory_name)
 for i in range(0, number_of_pages):
     page = read_pdf.getPage(i)
     raw += (page.extractText() + " ")
-    get_images_from_page('APT27+turns+to+ransomware', page)
+    get_images_from_page(temp_directory_name, page)
 
-full_path = os.path.abspath('APT27+turns+to+ransomware')
-all_imgs = os.listdir('APT27+turns+to+ransomware')
+full_path = os.path.abspath(temp_directory_name)
+all_imgs = os.listdir(temp_directory_name)
 
 images_text = []
 languages = []
@@ -161,3 +163,32 @@ for provider in providers:
     if provider.lower() in raw_lower:
         text_providers.add(provider)
 print(text_providers) #providers
+
+excluded = set(map(lambda x: x.lower(), nes)) \
+           - set(map(lambda x: x.lower(), providers)) \
+           - set(map(lambda x: x.lower(), expluatation_techniques))
+
+companies = set()
+protocols = set()
+software = set()
+
+for data in excluded:
+    try:
+        page = wikipedia.page(data)
+        categories = page.categories
+        for category in categories:
+            category_lower = category.lower()
+            if 'software' in category_lower or 'program' in category_lower:
+                software.add(data)
+            elif 'protocol' in category_lower:
+                protocols.add(data)
+            elif 'company' in category_lower or 'companies' in category_lower:
+                companies.add(data)
+    except wikipedia.DisambiguationError:
+        pass
+    except wikipedia.PageError:
+        pass
+
+print(companies) #companies
+print(protocols) #protocols
+print(software) #software
