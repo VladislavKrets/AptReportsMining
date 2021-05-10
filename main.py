@@ -1,56 +1,163 @@
+import PyPDF4
+import geograpy
 import nltk
-import string
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-# nltk.download() при первом запуске раскомментить и скачать всё
-
-f = open('chatbot.txt', 'r', errors='ignore')
-raw = f.read()
-raw = raw.lower()
-sent_tokens = nltk.sent_tokenize(raw, language='russian')  # converts to list of sentences
-word_tokens = nltk.word_tokenize(raw, language='russian')  # converts to list of words
-lemmer = nltk.stem.WordNetLemmatizer()
+from nltk import pos_tag, ne_chunk
+from nltk.tokenize import SpaceTokenizer
+import re
+import io
+import cv2
+import pytesseract
+from guesslang import Guess
+from PIL import Image, ImageOps
+import os
+import json
 
 
-def LemTokens(tokens):
-    return [lemmer.lemmatize(token) for token in tokens]
+def extract_entities(text):
+    for sent in nltk.sent_tokenize(text):
+        for chunk in nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(sent))):
+            if hasattr(chunk, 'node'):
+                print(chunk.node, ' '.join(c[0] for c in chunk.leaves()))
 
 
-remove_punct_dict = dict((ord(punct), None) for punct in string.punctuation)
+def get_images_from_page(path, page):
+    imgs = []
+    if '/XObject' in page['/Resources']:
+        xObject = page['/Resources']['/XObject'].getObject()
+
+        for obj in xObject:
+            if xObject[obj]['/Subtype'] == '/Image':
+                size = (xObject[obj]['/Width'], xObject[obj]['/Height'])
+                data = xObject[obj].getData()
+                if xObject[obj]['/ColorSpace'] == '/DeviceRGB':
+                    mode = "RGB"
+                else:
+                    mode = "P"
+                if '/Filter' in xObject[obj]:
+                    if xObject[obj]['/Filter'] == '/FlateDecode':
+                        img = Image.frombytes(mode, size, data)
+                        img.save(path + '/' + obj[1:] + ".png")
+                    elif xObject[obj]['/Filter'] == '/DCTDecode':
+                        img = open(path + '/' + obj[1:] + ".jpg", "wb")
+                        img.write(data)
+                        img.close()
+                    elif xObject[obj]['/Filter'] == '/JPXDecode':
+                        img = open(path + '/' + obj[1:] + ".jp2", "wb")
+                        img.write(data)
+                        img.close()
+                    elif xObject[obj]['/Filter'] == '/CCITTFaxDecode':
+                        img = open(path + '/' + obj[1:] + ".tiff", "wb")
+                        img.write(data)
+                        img.close()
+                else:
+                    img = Image.frombytes(mode, size, data)
+                    img.save(path + '/' + obj[1:] + ".png")
 
 
-def LemNormalize(text):
-    return LemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
+def extract_hashes(source_file_contents):
+    regex_list = {
+
+        'wordpress_md5': '\$P\$[\w\d./]+',
+        'phpBB3_md5': '\$H\$[\w\d./]+',
+        'sha1': '(?<!\w)[a-f\d]{40}(?!\w)',
+        'md5': '(?<!\w)[a-f\d]{32}(?!\w)',
+        'sha256': '(?<!\w)[a-f\d]{64}(?!\w)',
+        'sha512': '(?<!\w)[a-f\d]{128}(?!\w)',
+        'mysql': '(?<!\w)[a-f\d]{16}(?!\w)',
+        'mysql5': '\*[A-F\d]{40}'
+
+    }
+
+    result = {}
+
+    for format in regex_list.keys():
+        hashes = []
+        regex = re.compile(regex_list[format])
+        hashes = regex.findall(source_file_contents)
+        if hashes:
+            result[format] = hashes
+
+    return result
 
 
-def response():
-    robo_response = ''
-    russian_stopwords = stopwords.words("russian")
-    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words=None)
-    TfidfVec.stop_words_ = russian_stopwords
-    tfidf = TfidfVec.fit_transform(sent_tokens)
-    vals = cosine_similarity(tfidf[-1], tfidf)
-    idx = vals.argsort()[0][-2]
-    flat = vals.flatten()
-    flat.sort()
-    req_tfidf = flat[-2]
+pdf_file = open('APT27+turns+to+ransomware.pdf', 'rb')
+read_pdf = PyPDF4.PdfFileReader(pdf_file)
+number_of_pages = read_pdf.getNumPages()
+raw = ''
+if not os.path.exists('APT27+turns+to+ransomware'):
+    os.mkdir('APT27+turns+to+ransomware')
+for i in range(0, number_of_pages):
+    page = read_pdf.getPage(i)
+    raw += (page.extractText() + " ")
+    get_images_from_page('APT27+turns+to+ransomware', page)
 
-    if req_tfidf == 0:
-        robo_response = robo_response + "Я вас не понял"
-        return robo_response
-    else:
-        robo_response = robo_response + sent_tokens[idx]
-        return robo_response
+full_path = os.path.abspath('APT27+turns+to+ransomware')
+all_imgs = os.listdir('APT27+turns+to+ransomware')
 
+images_text = []
+languages = []
+guess = Guess()
+for img in all_imgs:
+    file = Image.open(os.path.join(full_path, img), 'r').convert('RGB')
+    pixels = file.getdata()
+    black_thresh = 50
+    nblack = 0
+    for pixel in pixels:
+        if sum(pixel) < black_thresh:
+            nblack += 1
+    n = len(pixels)
+    if nblack / float(n) > 0.5:
+        file = ImageOps.invert(file)
+    text = pytesseract.image_to_string(file)
+    images_text.append(text)
+    language = guess.language_name(text)
+    languages.append(language)
 
-flag = True
-while flag:
-    user_response = input()
-    user_response = user_response.lower()
-    sent_tokens.append(user_response)
-    word_tokens = word_tokens + nltk.word_tokenize(user_response)
-    final_words = list(set(word_tokens))
-    print(response())
-    sent_tokens.remove(user_response)
+print(set(filter(lambda x: x and x.lower() in ('c', 'c++', 'java'), languages))) #programm languages from images
+
+places = geograpy.get_place_context(text=raw) #get places
+print(places)
+
+tokenizer = SpaceTokenizer()
+toks = nltk.word_tokenize(raw)
+pos = pos_tag(toks)
+chunked_nes = ne_chunk(pos)
+
+nes = [' '.join(map(lambda x: x[0], ne.leaves())) for ne in chunked_nes if isinstance(ne, nltk.tree.Tree)]
+
+print(set(nes)) #all names
+
+domain_names = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', raw)
+
+print(set(domain_names)) #domain names
+
+ip_addresses = re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', raw)
+print(set(ip_addresses))
+
+hashes = extract_hashes(raw)
+print(hashes) #hashes
+
+# for image_text in images_text:
+#     hashes = extract_hashes(image_text)
+#     print(hashes) #hashes from image
+
+expluatation_techniques = open('files/techniques', 'r')
+expluatation_techniques = expluatation_techniques.readline()
+expluatation_techniques = json.loads(expluatation_techniques)
+
+techniques = set()
+raw_lower = raw.lower()
+for technique in expluatation_techniques:
+    if technique.lower() in raw_lower:
+        techniques.add(technique)
+print(techniques) #expluatation techniques
+
+providers = open('files/providers', 'r')
+providers = providers.readline()
+providers = json.loads(providers)
+
+text_providers = set()
+for provider in providers:
+    if provider.lower() in raw_lower:
+        text_providers.add(provider)
+print(text_providers) #providers
