@@ -10,8 +10,10 @@ from PIL import Image, ImageOps
 import os
 import json
 
-# if not downloaded
-#nltk.download()
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('all')
 
 
 def extract_entities(text):
