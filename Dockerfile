@@ -1,6 +1,4 @@
 FROM ubuntu:20.04
-ENV http_proxy http://192.168.49.1:8282
-ENV https_proxy http://192.168.49.1:8282
 ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt update -y
