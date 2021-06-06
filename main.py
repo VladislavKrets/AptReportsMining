@@ -133,7 +133,7 @@ def extract_ip_addresses(raw):
 
 
 def extract_exploitation_techiques(raw):
-    exploitation_techniques = open('files/techniques', 'r')
+    exploitation_techniques = open('files/techniques.json', 'r')
     exploitation_techniques = exploitation_techniques.readline()
     exploitation_techniques = json.loads(exploitation_techniques)
 
@@ -218,8 +218,8 @@ for key, value in hashes.items():
 print()
 
 exploitation_techniques, techniques = extract_exploitation_techiques(text_data)
-print('Exploitation techniques found:')
-print(', '.join(techniques)) #exploitation techniques
+print('Exploitation techniques.json found:')
+print(', '.join(techniques)) #exploitation techniques.json
 print()
 
 providers, extracted_providers = extract_providers(text_data)
