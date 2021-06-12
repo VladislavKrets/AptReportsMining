@@ -1,3 +1,5 @@
+import json
+
 from text_extraction import models
 from nltk import tokenize
 from nltk.stem.snowball import SnowballStemmer
@@ -25,7 +27,7 @@ class TechniquesExtractor:
                 self.DF[word] += 1
         self.TDM = self.create_tdm(lexemes)
 
-    def search(self, query, top=5):
+    def search(self, query, top=5, min_value=0.05):
         ranked_result = []
         v = self.to_vector(self.q2stem(query))
         for i, vect in enumerate(self.TDM):
@@ -36,7 +38,7 @@ class TechniquesExtractor:
                 )
             )
         ranked_result.sort(reverse=True)
-        return [item for item in ranked_result[:top] if item[0] >= 0.05]
+        return [item for item in ranked_result[:top] if item[0] >= min_value]
 
     def load_source_text(self):
         stemmer = SnowballStemmer("english")

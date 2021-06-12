@@ -64,8 +64,6 @@ def extract_languages_from_images(temp_directory_name):
     full_path = os.path.abspath(temp_directory_name)
     all_imgs = os.listdir(temp_directory_name)
     images_text = []
-    languages = []
-    guess = Guess()
     for img in all_imgs:
         file = Image.open(os.path.join(full_path, img), 'r').convert('RGB')
         pixels = file.getdata()
@@ -79,6 +77,4 @@ def extract_languages_from_images(temp_directory_name):
             file = ImageOps.invert(file)
         text = pytesseract.image_to_string(file)
         images_text.append(text)
-        language = guess.language_name(text)
-        languages.append(language)
-    return images_text, set(filter(lambda x: x and x.lower() in ('c', 'c++', 'java'), languages))
+    return images_text

@@ -1,3 +1,4 @@
+import json
 import re
 
 
@@ -31,3 +32,28 @@ def extract_domain_names(raw):
 
 def extract_ip_addresses(raw):
     return re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', raw)
+
+
+def extract_file_names(raw):
+    file_extensions = open('files/file_extensions.txt', 'r')
+    extensions = map(lambda x: x.replace('.', '\.').replace('-', '\-').strip(), file_extensions.readlines())
+    full_extensions = '|'.join(extensions)
+    files = re.findall(f'\S+(?:{full_extensions})', raw, re.I)
+    files = set(filter(lambda x: '://' not in x, files))
+    extensions = set()
+    for file in files:
+        extensions.add('.'.join(file.split('.')[1:]).lower())
+    return files, extensions
+
+
+def extract_providers(raw):
+    raw_lower = raw.lower()
+    text_providers = set()
+    providers = open('files/providers', 'r')
+    providers = providers.readline()
+    providers = json.loads(providers)
+    for provider in providers:
+        if provider.lower() in raw_lower:
+            text_providers.add(provider)
+    return text_providers
+
