@@ -36,7 +36,7 @@ def extract_ip_addresses(raw):
 
 def extract_file_names(raw):
     file_extensions = open('files/file_extensions.txt', 'r')
-    extensions = map(lambda x: x.replace('.', '\.').replace('-', '\-').strip(), file_extensions.readlines())
+    extensions = map(lambda x: re.escape(x).strip(), file_extensions.readlines())
     full_extensions = '|'.join(extensions)
     files = re.findall(f'\S+(?:{full_extensions})', raw, re.I)
     files = set(filter(lambda x: '://' not in x, files))
@@ -46,14 +46,28 @@ def extract_file_names(raw):
     return files, extensions
 
 
+def check_word(w):
+    w = re.escape(w)
+    return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search
+
+
 def extract_providers(raw):
-    raw_lower = raw.lower()
     text_providers = set()
     providers = open('files/providers', 'r')
     providers = providers.readline()
     providers = json.loads(providers)
     for provider in providers:
-        if provider.lower() in raw_lower:
+        if check_word(provider)(raw) is not None:
             text_providers.add(provider)
     return text_providers
 
+
+def extract_protocols(raw):
+    text_protocols = set()
+    protocols = open('files/protocols.json', 'r')
+    protocols = protocols.readline()
+    protocols = json.loads(protocols)
+    for protocol in protocols:
+        if check_word(protocol)(raw) is not None:
+            text_protocols.add(protocol)
+    return text_protocols
