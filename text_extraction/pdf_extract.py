@@ -4,8 +4,6 @@ from PIL import Image, ImageOps
 from googletrans import Translator
 import os
 
-from guesslang import Guess
-
 
 def get_images_from_page(path, page):
     imgs = []
@@ -75,6 +73,7 @@ def extract_languages_from_images(temp_directory_name):
         n = len(pixels)
         if nblack / float(n) > 0.5:
             file = ImageOps.invert(file)
-        text = pytesseract.image_to_string(file)
-        images_text.append(text)
+        text = pytesseract.image_to_string(file).strip()
+        if text:
+            images_text.append(text)
     return images_text

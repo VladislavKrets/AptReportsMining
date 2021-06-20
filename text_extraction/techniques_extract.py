@@ -1,5 +1,3 @@
-import json
-
 from text_extraction import models
 from nltk import tokenize
 from nltk.stem.snowball import SnowballStemmer
