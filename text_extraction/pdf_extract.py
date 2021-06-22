@@ -3,6 +3,7 @@ import pytesseract
 from PIL import Image, ImageOps
 from googletrans import Translator
 import os
+from pdfminer import high_level
 
 
 def get_images_from_page(path, page):
@@ -51,6 +52,9 @@ def parse_pdf(pdf_file_name):
         page = read_pdf.getPage(i)
         text += (page.extractText() + " ")
         get_images_from_page(temp_directory_name, page)
+    text = text.strip()
+    if not text:
+        text = high_level.extract_text(pdf_file_name, "", [i for i in range(number_of_pages)])
     translator = Translator()
     lang = translator.detect(text)
     if lang.lang != 'en':

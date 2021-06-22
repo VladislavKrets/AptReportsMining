@@ -38,7 +38,7 @@ def extract_file_names(raw):
     file_extensions = open('files/file_extensions.txt', 'r')
     extensions = map(lambda x: re.escape(x).strip(), file_extensions.readlines())
     full_extensions = '|'.join(extensions)
-    files = re.findall(f'\S+(?:{full_extensions})', raw, re.I)
+    files = re.findall(f'\b([/\\\\])?([a-zA-Z0-9_-]([/\\\\]))*(?:{full_extensions})\b', raw, re.I)
     files = set(filter(lambda x: '://' not in x, files))
     extensions = set()
     for file in files:

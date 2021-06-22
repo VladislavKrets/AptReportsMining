@@ -1,4 +1,6 @@
 import json
+import os
+
 import pandas as pd
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
@@ -32,49 +34,32 @@ def get_languages(images_text):
     text_clf = get_model()
     return text_clf.predict(images_text)
 
-# rootdir = '/home/lollipop/PycharmProjects/2017'
+
+# rootdir = '/home/lollipop/PycharmProjects/python-fire'
 # data = []
 # counter = 0
 # for root, subdirs, files in os.walk(rootdir):
 #     for file in files:
-#         if file.endswith('.pdf'):
+#         if file.endswith('.py'):
+#             f = open(root + '/' + file, 'r')
 #             try:
-#                 pdf_file = open(root + '/' + file, 'rb')
-#                 read_pdf = PyPDF4.PdfFileReader(pdf_file)
-#                 number_of_pages = read_pdf.getNumPages()
-#                 text = ''
-#                 for i in range(0, number_of_pages):
-#                     page = read_pdf.getPage(i)
-#                     text += (page.extractText() + " ")
-#
-#                 translator = Translator()
-#                 lang = translator.detect(text)
-#                 if lang.lang != 'en':
-#                     text = translator.translate(text).text
+#                 text = '\n'.join(f.readlines())
 #                 data.append(text)
-#             except ProtocolError:
+#             except UnicodeDecodeError:
 #                 pass
-#             except PdfReadError:
-#                 pass
-#             counter += 1
-#             print(counter)
-#             # try:
-#             #     text = '\n'.join(f.readlines())
-#             #     data.append(text)
-#             # except UnicodeDecodeError:
-#             #     pass
-# file = open('../files/plain_text.json', 'w+')
+# file = open('../files/python.json', 'w+')
+# print(len(data))
 # data = json.dumps(data)
 # file.write(data)
 # file.flush()
 # file.close()
 
-#train()
+# train()
 
-# all_data = json.load(open('../files/data.json'))
-# data = json.load(open('../files/plain_text.json'))
+# all_data = json.load(open('../files/all_data.json'))
+# data = json.load(open('../files/python.json'))
 # for p in data:
-#     all_data.append(('plain_text', p))
+#     all_data.append(('python', p))
 # file = open('../files/all_data.json', 'w')
 # all_data = json.dumps(all_data)
 # file.write(all_data)
