@@ -8,5 +8,5 @@ RUN git clone https://github.com/VladislavKrets/AptReportsMining.git
 RUN cd AptReportsMining && pip install -r requirements.txt
 RUN python3 -m nltk.downloader book
 WORKDIR "/AptReportsMining"
-CMD python3 main.py
+CMD python3 -m text_extraction
 ADD reports /reports

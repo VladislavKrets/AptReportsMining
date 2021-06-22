@@ -35,14 +35,9 @@ def extract_ip_addresses(raw):
 
 
 def extract_file_names(raw):
-    file_extensions = open('files/file_extensions.txt', 'r')
-    extensions = map(lambda x: re.escape(x).strip(), file_extensions.readlines())
-    full_extensions = '|'.join(extensions)
-    files = re.findall(f'\b([/\\\\])?([a-zA-Z0-9_-]([/\\\\]))*(?:{full_extensions})\b', raw, re.I)
-    files = set(filter(lambda x: '://' not in x, files))
-    extensions = set()
-    for file in files:
-        extensions.add('.'.join(file.split('.')[1:]).lower())
+    files = re.findall(r'([\\/].*?\.[\w:]+)', raw, re.I)
+    files = set(filter(lambda x: '://' not in x and not x.startswith('//'), files))
+    extensions = set(map(lambda x: x.split('.')[-1], files))
     return files, extensions
 
 
