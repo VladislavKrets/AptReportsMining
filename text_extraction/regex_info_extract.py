@@ -1,6 +1,19 @@
 import json
 import re
 
+registry_keys = [
+        'HKEY_CURRENT_USER'.lower(),
+        'HKCU'.lower(),
+        'HKEY_USERS'.lower(),
+        'HKU'.lower(),
+        'HKEY_LOCAL_MACHINE'.lower(),
+        'HKLM'.lower(),
+        'HKEY_CLASSES_ROOT'.lower(),
+        'HKCR'.lower(),
+        'HKEY_CURRENT_CONFIG'.lower(),
+        'HKEY_DYN_DATA'.lower()
+]
+
 
 def extract_hashes(source_file_contents):
     regex_list = {
@@ -66,3 +79,15 @@ def extract_protocols(raw):
         if check_word(protocol)(raw) is not None:
             text_protocols.add(protocol)
     return text_protocols
+
+
+def registry_keys_extract(special_words):
+    registry_data = set()
+    for word in special_words:
+        if word.split('\\')[0] in registry_keys:
+            registry_data.add(word)
+    return registry_data
+
+
+def clear_registry_keys(special_words):
+    return [i for i in special_words if i.split('\\')[0] not in registry_keys]

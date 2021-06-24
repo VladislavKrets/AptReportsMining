@@ -2,12 +2,17 @@ from text_extraction import parse_pdf, extract_all_names, \
     CountryInfoExtract, search_techniques, extract_file_names, extract_providers, \
     extract_hashes, extract_domain_names, extract_ip_addresses, \
     extract_languages_from_images, get_languages, extract_companies_software, \
-    extract_protocols, train, extract_special_words
+    extract_protocols, train, extract_special_words, registry_keys_extract, clear_registry_keys
 
 
-file_name = input('File path:')
+file_name = input('File path: ')
 temp_directory_name, text = parse_pdf(file_name)
 words = extract_special_words(text)
+print('Registry keys')
+registry_keys = registry_keys_extract(words)
+print(registry_keys)
+words = clear_registry_keys(words)
+print()
 print('Special words')
 print(words)
 print()
@@ -63,10 +68,10 @@ languages = get_languages(images_text)
 print()
 print('Program languages')
 print(languages)
-# companies, software = extract_companies_software(names - cities - countries - country_regions)
-# print()
-# print('Companies')
-# print(companies)
-# print()
-# print('Software')
-# print(software)
+companies, software = extract_companies_software(names - cities - countries - country_regions)
+print()
+print('Companies')
+print(companies)
+print()
+print('Software')
+print(software)

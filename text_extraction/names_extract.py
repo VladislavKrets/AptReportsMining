@@ -18,7 +18,7 @@ def extract_special_words(text):
     for sentence in sentences:
         s_words = [word for word
                    in tokenize.word_tokenize(sentence)
-                   if word not in (',', '.', ':', '-', ';', '?', '!',
+                   if word not in (',', '.', ':', '-', ';', '?', '!', '...',
                                    '"', "``", "`", "''", "[", "]", "(", ")", "@", '–', '&')
                    ]
         filtered_words = [word.strip() for word in s_words if word not in stop_words]
