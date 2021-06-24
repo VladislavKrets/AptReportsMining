@@ -1,11 +1,16 @@
-from text_extraction import parse_pdf, extract_all_names,\
-    CountryInfoExtract, search_techniques, extract_file_names, extract_providers,\
-    extract_hashes, extract_domain_names, extract_ip_addresses,\
-    extract_languages_from_images, get_languages, extract_companies_software,\
-    extract_protocols, train
+from text_extraction import parse_pdf, extract_all_names, \
+    CountryInfoExtract, search_techniques, extract_file_names, extract_providers, \
+    extract_hashes, extract_domain_names, extract_ip_addresses, \
+    extract_languages_from_images, get_languages, extract_companies_software, \
+    extract_protocols, train, extract_special_words
 
-file_name = 'test.pdf'
+
+file_name = input('File path:')
 temp_directory_name, text = parse_pdf(file_name)
+words = extract_special_words(text)
+print('Special words')
+print(words)
+print()
 names = extract_all_names(text)
 extractor = CountryInfoExtract(names)
 print('Countries')
