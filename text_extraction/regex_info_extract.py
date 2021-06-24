@@ -27,7 +27,7 @@ def extract_hashes(source_file_contents):
 
 
 def extract_domain_names(raw):
-    return re.findall(r'https?://(www\.)?(?:[-\w.]|(?:%[\da-fA-F]{2}))+', raw)
+    return re.findall(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', raw)
 
 
 def extract_ip_addresses(raw):
@@ -35,7 +35,7 @@ def extract_ip_addresses(raw):
 
 
 def extract_file_names(raw):
-    files = re.findall(r'([\\/]?.*?\.[\w:]+)', raw, re.I)
+    files = re.findall(r'([\\/].*?\.[\w:]+)', raw, re.I)
     files = set(filter(lambda x: '://' not in x and not x.startswith('//'), files))
     extensions = set(map(lambda x: x.split('.')[-1], files))
     return files, extensions
