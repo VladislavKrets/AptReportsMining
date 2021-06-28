@@ -28,6 +28,11 @@ def extract_special_words(text):
 
 def check_special_word(word):
     return not re.match(r'\d+([.:]\d*)*', word) \
-           and not re.match(r'//(www\.)?(?:[-\w.]|(?:%[\da-fA-F]{2}))+', word)\
+           and not re.match(r'//(www\.)?(?:[-\w.]|(?:%[\da-fA-F]{2}))+', word) \
            and not re.match(r'([\\/]?.*?\.[\w:]+)', word) \
            and len(word) > 2 and '\x00' not in word
+
+
+def clear_special_words(words):
+    return set(filter(lambda x: not x
+                      .startswith('-') and not x.endswith('-') and re.match(r'^[A-Za-z0-9_/-]+$', x), words))
