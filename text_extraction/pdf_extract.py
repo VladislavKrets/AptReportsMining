@@ -45,16 +45,13 @@ def parse_pdf(pdf_file_name):
     read_pdf = PyPDF4.PdfFileReader(pdf_file)
     number_of_pages = read_pdf.getNumPages()
     temp_directory_name = '.'.join(pdf_file_name.split('.')[:-1])
-    text = ''
     if not os.path.exists(temp_directory_name):
         os.mkdir(temp_directory_name)
     for i in range(0, number_of_pages):
         page = read_pdf.getPage(i)
-        text += (page.extractText() + " ")
         get_images_from_page(temp_directory_name, page)
+    text = high_level.extract_text(pdf_file_name, "", [i for i in range(number_of_pages)])
     text = text.strip()
-    if not text:
-        text = high_level.extract_text(pdf_file_name, "", [i for i in range(number_of_pages)])
     translator = Translator()
     lang = translator.detect(text)
     if lang.lang != 'en':

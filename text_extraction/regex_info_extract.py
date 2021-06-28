@@ -51,11 +51,11 @@ def clear_hashes(special_words, hashes):
 
 
 def extract_domain_names(raw):
-    return re.findall(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', raw)
+    return set(re.findall(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', raw))
 
 
 def extract_ip_addresses(raw):
-    return re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', raw)
+    return set(re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', raw))
 
 
 def extract_file_names(raw):
