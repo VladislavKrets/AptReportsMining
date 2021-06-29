@@ -1,4 +1,5 @@
 from text_extraction import *
+import os
 
 
 file_name = input('File path: ')
@@ -61,7 +62,7 @@ protocols = extract_protocols(text)
 print()
 print('Protocols')
 print(protocols)
-images_text = extract_languages_from_images(temp_directory_name)
+images_text = extract_languages_from_images(temp_directory_name, remove=True)
 languages = get_languages(images_text)
 print()
 print('Program languages')

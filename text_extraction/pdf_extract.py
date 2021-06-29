@@ -4,6 +4,7 @@ from PIL import Image, ImageOps
 from googletrans import Translator
 import os
 from pdfminer import high_level
+import shutil
 
 
 def get_images_from_page(path, page):
@@ -59,7 +60,7 @@ def parse_pdf(pdf_file_name):
     return temp_directory_name, text
 
 
-def extract_languages_from_images(temp_directory_name):
+def extract_languages_from_images(temp_directory_name, remove=False):
     full_path = os.path.abspath(temp_directory_name)
     all_imgs = os.listdir(temp_directory_name)
     images_text = []
@@ -77,4 +78,6 @@ def extract_languages_from_images(temp_directory_name):
         text = pytesseract.image_to_string(file).strip()
         if text and len(text) > 35:
             images_text.append(text)
+    if remove:
+        shutil.rmtree(temp_directory_name)
     return images_text
