@@ -32,7 +32,8 @@ def get_model():
 
 def get_languages(images_text):
     text_clf = get_model()
-    return text_clf.predict(images_text)
+    languages = set(text_clf.predict(images_text))
+    return set(filter(lambda x: x != 'plain_text', languages))
 
 
 # rootdir = '/home/lollipop/PycharmProjects/python-fire'

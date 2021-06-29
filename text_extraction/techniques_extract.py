@@ -5,6 +5,7 @@ import itertools
 import math
 from collections import defaultdict
 from numpy import dot
+import re
 
 
 class TechniquesExtractor:
@@ -124,4 +125,7 @@ def search_techniques(text):
         data = extractor.search(technique.description)
         if data:
             extracted.add(technique.name)
+    techniques = set(map(lambda x: re.escape(x.name), techniques))
+    techniques = '|'.join(techniques)
+    extracted.update(map(lambda x: x.lower(), re.findall(techniques, text, re.I)))
     return extracted

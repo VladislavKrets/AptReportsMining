@@ -75,6 +75,6 @@ def extract_languages_from_images(temp_directory_name):
         if nblack / float(n) > 0.5:
             file = ImageOps.invert(file)
         text = pytesseract.image_to_string(file).strip()
-        if text:
+        if text and len(text) > 35:
             images_text.append(text)
     return images_text
