@@ -6,6 +6,8 @@ import math
 from collections import defaultdict
 from numpy import dot
 import re
+import numpy as np
+np.seterr('raise')
 
 
 class TechniquesExtractor:
@@ -27,6 +29,7 @@ class TechniquesExtractor:
         self.TDM = self.create_tdm(lexemes)
 
     def search(self, query, top=5, min_value=0.05):
+
         ranked_result = []
         v = self.to_vector(self.q2stem(query))
         for i, vect in enumerate(self.TDM):
@@ -122,9 +125,12 @@ def search_techniques(text):
     techniques = models.Technique.select()
     extracted = set()
     for technique in techniques:
-        data = extractor.search(technique.description)
-        if data:
-            extracted.add(technique.name)
+        try:
+            data = extractor.search(technique.description)
+            if data:
+                extracted.add(technique.name)
+        except FloatingPointError:
+            pass
     techniques = set(map(lambda x: re.escape(x.name), techniques))
     techniques = '|'.join(techniques)
     extracted.update(map(lambda x: x.lower(), re.findall(techniques, text, re.I)))

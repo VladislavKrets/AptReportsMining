@@ -34,5 +34,8 @@ def check_special_word(word):
 
 
 def clear_special_words(words):
+    file_extensions = map(lambda x: x.replace('.', ''), open('files/file_extensions.txt').readlines())
     return set(filter(lambda x: not x
-                      .startswith('-') and not x.endswith('-') and re.match(r'^[A-Za-z0-9_/-]+$', x), words))
+                      .startswith('-') and not x
+                      .endswith('-') and re
+                      .match(r'^[A-Za-z0-9_/-]+$', x) and x not in file_extensions, words))
